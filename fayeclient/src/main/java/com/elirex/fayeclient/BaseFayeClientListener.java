@@ -1,6 +1,6 @@
 package com.elirex.fayeclient;
 
-abstract class BaseFayeClientListener implements FayeClientListener {
+abstract public class BaseFayeClientListener implements FayeClientListener {
     @Override
     public void onConnectedServer(FayeClient fc) {
 
