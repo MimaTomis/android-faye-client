@@ -8,6 +8,8 @@ import android.util.Log;
 import com.elirex.fayeclient.rx.RxEvent;
 import com.elirex.fayeclient.rx.RxEventConnected;
 import com.elirex.fayeclient.rx.RxEventDisconnected;
+import com.elirex.fayeclient.rx.RxEventFayeConnected;
+import com.elirex.fayeclient.rx.RxEventFayeSubscribed;
 import com.elirex.fayeclient.rx.RxEventMessage;
 
 import org.json.JSONArray;
@@ -283,7 +285,7 @@ public class FayeClient {
 
             if(channel.equals(MetaMessage.DISCONNECT_CHANNEL)) {
                 if(successful) {
-                    if(mListener != null && mListener instanceof FayeClientListener) {
+                    if(mListener != null) {
                         mListener.onDisconnectedServer(this);
                     }
                     mFayeConnected = false;
@@ -297,6 +299,10 @@ public class FayeClient {
             if(channel.equals(MetaMessage.SUBSCRIBE_CHANNEL)) {
                 String subscription = obj.optString(MetaMessage.KEY_SUBSCRIPTION);
                 if(successful) {
+                    if (mListener != null && !mFayeConnected) {
+                        mListener.onFayeConnected(this);
+                    }
+
                     mFayeConnected = true;
                     Log.i(LOG_TAG, "Subscribed channel " + subscription);
                 } else {
@@ -309,6 +315,10 @@ public class FayeClient {
             if(channel.equals(MetaMessage.UNSUBSCRIBE_CHANNEL)) {
                 String subscription = obj.optString(MetaMessage.KEY_SUBSCRIPTION);
                 if(successful) {
+                    if (mListener != null) {
+                        mListener.onFayeSubscribed(this, subscription);
+                    }
+
                     Log.i(LOG_TAG, "Unsubscribed channel " + subscription);
                 } else {
                     Log.e(LOG_TAG, "Unsubscribing channel " + subscription
@@ -335,7 +345,7 @@ public class FayeClient {
         return Observable.create(new Observable.OnSubscribe<RxEvent>() {
             @Override
             public void call(final Subscriber<? super RxEvent> subscriber) {
-                FayeClientListener listener = new FayeClientListener() {
+                FayeClientListener listener = new BaseFayeClientListener() {
                     @Override
                     public void onConnectedServer(FayeClient fc) {
                         if(subscriber.isUnsubscribed()) {
@@ -365,6 +375,28 @@ public class FayeClient {
                             setListener(null);
                         } else {
                             RxEventMessage event = new RxEventMessage(fc, msg);
+                            subscriber.onNext(event);
+                        }
+                    }
+
+                    @Override
+                    public void onFayeConnected(FayeClient fc) {
+                        if(subscriber.isUnsubscribed()) {
+                            Log.d(LOG_TAG, "4.unsubscribed()");
+                            setListener(null);
+                        } else {
+                            RxEventFayeConnected event = new RxEventFayeConnected(fc);
+                            subscriber.onNext(event);
+                        }
+                    }
+
+                    @Override
+                    public void onFayeSubscribed(FayeClient fc, String channel) {
+                        if(subscriber.isUnsubscribed()) {
+                            Log.d(LOG_TAG, "5.unsubscribed()");
+                            setListener(null);
+                        } else {
+                            RxEventFayeSubscribed event = new RxEventFayeSubscribed(fc, channel);
                             subscriber.onNext(event);
                         }
                     }

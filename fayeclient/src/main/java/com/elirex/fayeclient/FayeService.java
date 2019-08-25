@@ -72,28 +72,6 @@ public class FayeService extends Service {
             }
         }
 
-        // ServiceConnection connection = new ServiceConnection() {
-
-        //     private FayeService service;
-
-        //     @Override
-        //     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-        //         FayeServiceBinder binder = ((FayeServiceBinder) iBinder);
-        //         service = binder.getService();
-        //         service.addListener(listener);
-        //         Log.i(LOG_TAG, "Faye Service connected.");
-        //     }
-
-        //     @Override
-        //     public void onServiceDisconnected(ComponentName componentName) {
-        //         if(service != null)  {
-        //             service.removeListener(listener);
-        //             service = null;
-        //             Log.i(LOG_TAG, "Faye service disconnected.");
-        //         }
-        //     }
-        // };
-
         FayeServiceConnection connection = new FayeServiceConnection(listener);
         context.bindService(new Intent(context, FayeService.class),
                 connection, Context.BIND_AUTO_CREATE);
@@ -105,9 +83,9 @@ public class FayeService extends Service {
         context.unbindService(connection);
     }
 
-    private FayeClientListener mFayeClientListener = new FayeClientListener() {
+    private FayeClientListener mFayeClientListener = new BaseFayeClientListener() {
         @Override
-        public void onConnectedServer(FayeClient fc) {
+        public void onFayeConnected(FayeClient fc) {
             Log.i(LOG_TAG, "Connect to server");
             for(FayeServiceListener listener : mListeners) {
                 listener.onConnectedToServer(fc);
