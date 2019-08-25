@@ -17,12 +17,12 @@ abstract public class BaseFayeClientListener implements FayeClientListener {
     }
 
     @Override
-    public void onFayeConnected(FayeClient fc) {
+    public void onConnectedClient(FayeClient fc) {
 
     }
 
     @Override
-    public void onFayeSubscribed(FayeClient fc, String channel) {
+    public void onSubscribedClient(FayeClient fc, String channel) {
 
     }
 }

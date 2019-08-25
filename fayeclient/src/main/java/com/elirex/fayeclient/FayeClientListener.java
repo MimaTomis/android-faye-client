@@ -7,6 +7,6 @@ public interface FayeClientListener {
     void onConnectedServer(FayeClient fc);
     void onDisconnectedServer(FayeClient fc);
     void onReceivedMessage(FayeClient fc, String msg);
-    void onFayeConnected(FayeClient fc);
-    void onFayeSubscribed(FayeClient fc, String channel);
+    void onConnectedClient(FayeClient fc);
+    void onSubscribedClient(FayeClient fc, String channel);
 }

@@ -85,7 +85,7 @@ public class FayeService extends Service {
 
     private FayeClientListener mFayeClientListener = new BaseFayeClientListener() {
         @Override
-        public void onFayeConnected(FayeClient fc) {
+        public void onConnectedClient(FayeClient fc) {
             Log.i(LOG_TAG, "Connect to server");
             for(FayeServiceListener listener : mListeners) {
                 listener.onConnectedToServer(fc);
