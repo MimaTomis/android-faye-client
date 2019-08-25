@@ -260,6 +260,8 @@ public class FayeClient {
 
             String channel = obj.optString(MetaMessage.KEY_CHANNEL);
             boolean successful = obj.optBoolean("successful");
+            Log.i(LOG_TAG, "handleFayeMessage:" + channel + ":" + obj.toString());
+
             if(channel.equals(MetaMessage.HANDSHAKE_CHANNEL)) {
                 if(successful) {
                     mMetaMessage.setClient(obj.optString(MetaMessage.KEY_CLIENT_ID));
