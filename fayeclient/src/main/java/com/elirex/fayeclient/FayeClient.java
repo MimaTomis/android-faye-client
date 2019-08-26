@@ -7,10 +7,10 @@ import android.util.Log;
 
 import com.elirex.fayeclient.rx.RxEvent;
 import com.elirex.fayeclient.rx.RxEventConnected;
+import com.elirex.fayeclient.rx.RxEventConnectedError;
 import com.elirex.fayeclient.rx.RxEventDisconnected;
-import com.elirex.fayeclient.rx.RxEventFayeConnected;
-import com.elirex.fayeclient.rx.RxEventFayeSubscribed;
 import com.elirex.fayeclient.rx.RxEventMessage;
+import com.elirex.fayeclient.rx.RxEventSubscribedError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +37,7 @@ public class FayeClient {
 
     private WebSocket mWebSocket = null;
     private FayeClientListener mListener = null;
+    private FayeClientErrorListener mErrorListener;
     private HashSet<String> mChannels;
     private String mServerUrl = "";
     private boolean mFayeConnected = false;
@@ -91,6 +92,10 @@ public class FayeClient {
 
     public void setListener(FayeClientListener listener) {
         mListener = listener;
+    }
+
+    public void setErrorListener(FayeClientErrorListener listener) {
+        mErrorListener = listener;
     }
 
     public void addChannel(String channel) {
@@ -272,6 +277,9 @@ public class FayeClient {
                         mListener.onConnectedServer(this);
                     }
                 } else {
+                    if (mErrorListener != null) {
+                        mErrorListener.onConnectedServerError(this, obj);
+                    }
                     Log.e(LOG_TAG, "Handshake Error: " + obj.toString());
                 }
                 return;
@@ -281,10 +289,6 @@ public class FayeClient {
                 if(successful) {
                     mFayeConnected = true;
                     connect();
-
-                    if (mListener != null) {
-                        mListener.onConnectedClient(this);
-                    }
                 } else {
                     Log.e(LOG_TAG, "Connecting Error: " + obj.toString());
                 }
@@ -307,13 +311,13 @@ public class FayeClient {
             if(channel.equals(MetaMessage.SUBSCRIBE_CHANNEL)) {
                 String subscription = obj.optString(MetaMessage.KEY_SUBSCRIPTION);
                 if(successful) {
-                    if (mListener != null) {
-                        mListener.onSubscribedClient(this, subscription);
-                    }
-
                     mFayeConnected = true;
                     Log.i(LOG_TAG, "Subscribed channel " + subscription);
                 } else {
+                    if (mErrorListener != null) {
+                        mErrorListener.onSubscribedError(this, subscription, obj);
+                    }
+
                     Log.e(LOG_TAG, "Subscribing channel " + subscription
                             + " Error: " + obj.toString());
                 }
@@ -351,7 +355,7 @@ public class FayeClient {
         return Observable.create(new Observable.OnSubscribe<RxEvent>() {
             @Override
             public void call(final Subscriber<? super RxEvent> subscriber) {
-                FayeClientListener listener = new BaseFayeClientListener() {
+                BaseFayeClientListener listener = new BaseFayeClientListener() {
                     @Override
                     public void onConnectedServer(FayeClient fc) {
                         if(subscriber.isUnsubscribed()) {
@@ -386,28 +390,29 @@ public class FayeClient {
                     }
 
                     @Override
-                    public void onConnectedClient(FayeClient fc) {
+                    public void onConnectedServerError(FayeClient client, JSONObject message) {
                         if(subscriber.isUnsubscribed()) {
                             Log.d(LOG_TAG, "4.unsubscribed()");
                             setListener(null);
                         } else {
-                            RxEventFayeConnected event = new RxEventFayeConnected(fc);
+                            RxEventConnectedError event = new RxEventConnectedError(client, message);
                             subscriber.onNext(event);
                         }
                     }
 
                     @Override
-                    public void onSubscribedClient(FayeClient fc, String channel) {
+                    public void onSubscribedError(FayeClient client, String channel, JSONObject message) {
                         if(subscriber.isUnsubscribed()) {
                             Log.d(LOG_TAG, "5.unsubscribed()");
                             setListener(null);
                         } else {
-                            RxEventFayeSubscribed event = new RxEventFayeSubscribed(fc, channel);
+                            RxEventSubscribedError event = new RxEventSubscribedError(client, channel, message);
                             subscriber.onNext(event);
                         }
                     }
                 };
                 setListener(listener);
+                setErrorListener(listener);
                 connectServer();
             }
         });

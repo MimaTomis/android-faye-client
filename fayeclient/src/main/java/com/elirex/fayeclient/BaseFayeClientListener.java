@@ -1,6 +1,8 @@
 package com.elirex.fayeclient;
 
-abstract public class BaseFayeClientListener implements FayeClientListener {
+import org.json.JSONObject;
+
+abstract public class BaseFayeClientListener implements FayeClientListener, FayeClientErrorListener {
     @Override
     public void onConnectedServer(FayeClient fc) {
 
@@ -17,12 +19,12 @@ abstract public class BaseFayeClientListener implements FayeClientListener {
     }
 
     @Override
-    public void onConnectedClient(FayeClient fc) {
+    public void onSubscribedError(FayeClient client, String channel, JSONObject message) {
 
     }
 
     @Override
-    public void onSubscribedClient(FayeClient fc, String channel) {
+    public void onConnectedServerError(FayeClient client, JSONObject message) {
 
     }
 }
