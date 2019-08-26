@@ -2,7 +2,7 @@ package com.elirex.fayeclient;
 
 import org.json.JSONObject;
 
-abstract public class BaseFayeClientListener implements FayeClientListener, FayeClientErrorListener {
+abstract public class BaseFayeClientListener implements FayeClientListener {
     @Override
     public void onConnectedServer(FayeClient fc) {
 

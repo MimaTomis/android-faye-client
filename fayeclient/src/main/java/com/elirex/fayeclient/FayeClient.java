@@ -37,7 +37,6 @@ public class FayeClient {
 
     private WebSocket mWebSocket = null;
     private FayeClientListener mListener = null;
-    private FayeClientErrorListener mErrorListener;
     private HashSet<String> mChannels;
     private String mServerUrl = "";
     private boolean mFayeConnected = false;
@@ -50,7 +49,6 @@ public class FayeClient {
         mMetaMessage = meta;
         mChannels = new HashSet<String>();
     }
-
     {
         HandlerThread thread = new HandlerThread("FayeHandler");
         thread.start();
@@ -92,10 +90,6 @@ public class FayeClient {
 
     public void setListener(FayeClientListener listener) {
         mListener = listener;
-    }
-
-    public void setErrorListener(FayeClientErrorListener listener) {
-        mErrorListener = listener;
     }
 
     public void addChannel(String channel) {
@@ -277,8 +271,8 @@ public class FayeClient {
                         mListener.onConnectedServer(this);
                     }
                 } else {
-                    if (mErrorListener != null) {
-                        mErrorListener.onConnectedServerError(this, obj);
+                    if (mListener != null) {
+                        mListener.onConnectedServerError(this, obj);
                     }
                     Log.e(LOG_TAG, "Handshake Error: " + obj.toString());
                 }
@@ -314,8 +308,8 @@ public class FayeClient {
                     mFayeConnected = true;
                     Log.i(LOG_TAG, "Subscribed channel " + subscription);
                 } else {
-                    if (mErrorListener != null) {
-                        mErrorListener.onSubscribedError(this, subscription, obj);
+                    if (mListener != null) {
+                        mListener.onSubscribedError(this, subscription, obj);
                     }
 
                     Log.e(LOG_TAG, "Subscribing channel " + subscription
@@ -412,7 +406,6 @@ public class FayeClient {
                     }
                 };
                 setListener(listener);
-                setErrorListener(listener);
                 connectServer();
             }
         });
