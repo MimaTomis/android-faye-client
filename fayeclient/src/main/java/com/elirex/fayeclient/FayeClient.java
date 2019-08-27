@@ -182,6 +182,7 @@ public class FayeClient {
         try {
             URI uri = new URI(mServerUrl);
             mWebSocket = new WebSocket(uri, mMessageHandler);
+            mWebSocket.setConnectionLostTimeout(30);
             if(uri.getScheme().equals("wss")) {
                 mWebSocket.setSocket(getSSLWebSocket());
             }
