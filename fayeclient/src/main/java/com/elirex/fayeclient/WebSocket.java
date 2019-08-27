@@ -47,6 +47,18 @@ public class WebSocket extends WebSocketClient {
     }
 
     @Override
+    public void sendPing() {
+        super.sendPing();
+        Log.v(LOG_TAG, "sendPing");
+    }
+
+    @Override
+    protected void startConnectionLostTimer() {
+        super.startConnectionLostTimer();
+        Log.v(LOG_TAG, "startConnectionLostTimer");
+    }
+
+    @Override
     public void onError(Exception e) {
         Log.e(LOG_TAG, "On WebSocket Error:", e);
     }
