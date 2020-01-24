@@ -307,6 +307,11 @@ public class FayeClient {
                 String subscription = obj.optString(MetaMessage.KEY_SUBSCRIPTION);
                 if(successful) {
                     mFayeConnected = true;
+
+                    if (mListener != null) {
+                        mListener.onSubscribed(this, subscription);
+                    }
+
                     Log.i(LOG_TAG, "Subscribed channel " + subscription);
                 } else {
                     if (mListener != null) {
@@ -323,6 +328,10 @@ public class FayeClient {
                 String subscription = obj.optString(MetaMessage.KEY_SUBSCRIPTION);
 
                 if(successful) {
+                    if (mListener != null) {
+                        mListener.onUnsubscribed(this, subscription);
+                    }
+
                     Log.i(LOG_TAG, "Unsubscribed channel " + subscription);
                 } else {
                     Log.e(LOG_TAG, "Unsubscribing channel " + subscription

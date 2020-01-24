@@ -19,6 +19,16 @@ abstract public class BaseFayeClientListener implements FayeClientListener {
     }
 
     @Override
+    public void onSubscribed(FayeClient client, String channel) {
+
+    }
+
+    @Override
+    public void onUnsubscribed(FayeClient client, String channel) {
+
+    }
+
+    @Override
     public void onSubscribedError(FayeClient client, String channel, JSONObject message) {
 
     }
